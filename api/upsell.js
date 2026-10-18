@@ -1,4 +1,5 @@
 import { OFFERS, createSessionCookie, json, orderId, readSession, requirePost, transact } from './_lib/nmi.js';
+import { createOrder, updateOrder } from './_lib/analytics.js';
 
 export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
@@ -11,14 +12,23 @@ export default async function handler(req, res) {
     if (session.purchased?.includes(offerKey)) {
       return json(res, 200, { success: true, duplicate: true, transactionId: session.transactionIds?.[offerKey] || '' });
     }
-    const result = await transact({
+    const analyticsOrderId = await createOrder({ leadId: session.leadId, sessionId: session.sessionId, offerKey, name: offer.name, amount: offer.amount });
+    let result;
+    try { result = await transact({
       type: 'sale', customer_vault_id: session.vaultId, amount: offer.amount,
       orderid: orderId(offerKey), order_description: offer.name,
       email: session.email || '', customer_receipt: 'true',
       initiated_by: 'customer', stored_credential_indicator: 'used',
       initial_transaction_id: session.transactionIds?.frontend || ''
-    });
-    if (!result.approved) return json(res, 402, { success: false, message: result.message, code: result.responseCode });
+    }); } catch (error) {
+      await updateOrder(analyticsOrderId, 'error', { message: error.message });
+      throw error;
+    }
+    if (!result.approved) {
+      await updateOrder(analyticsOrderId, 'declined', result);
+      return json(res, 402, { success: false, message: result.message, code: result.responseCode });
+    }
+    await updateOrder(analyticsOrderId, 'paid', result);
     session.purchased = [...(session.purchased || []), offerKey];
     session.transactionIds = { ...(session.transactionIds || {}), [offerKey]: result.transactionId };
     session.expires = Date.now() + 86400000;

@@ -6,6 +6,7 @@ import { OFFERS, readSession, transact } from '../api/_lib/nmi.js';
 
 process.env.NMI_PRIVATE_KEY = 'test-private-key';
 process.env.CHECKOUT_SESSION_SECRET = 'test-session-secret';
+process.env.ANALYTICS_DISABLED = 'true';
 
 function response() {
   return {

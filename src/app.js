@@ -30,6 +30,24 @@ const offers = {
 const query = () => window.location.search || '';
 const url = path => `/${path}${query()}`;
 const route = () => window.location.pathname.replace(/^\/+|\/+$/g, '') || 'watch';
+const sessionId = (() => {
+  let id = localStorage.getItem('dp_session_id');
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('dp_session_id', id); }
+  return id;
+})();
+const tracking = () => {
+  const params = new URLSearchParams(location.search);
+  return {
+    source: params.get('utm_source') || params.get('source') || (document.referrer ? new URL(document.referrer).hostname : 'direct'),
+    campaign: params.get('utm_campaign') || '', medium: params.get('utm_medium') || '',
+    aid: params.get('aid') || '', tid: params.get('tid') || '', landingPage: location.pathname,
+    referrer: document.referrer || ''
+  };
+};
+function track(eventType, extra = {}) {
+  const payload = { sessionId, eventType, path: location.pathname, offerKey: route(), tracking: tracking(), ...extra };
+  fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
+}
 
 function video(key, portrait = false) {
   const src = CONFIG.videos[key];
@@ -103,6 +121,7 @@ function initializeVideos() {
       wrapper.classList.add('activated');
       beginPlayback();
       updateButtons();
+      track('video_unmuted');
     });
 
     playButton.addEventListener('click', event => {
@@ -163,6 +182,10 @@ async function initializeCheckout() {
   const form = document.querySelector('#checkout-form');
   if (!form) return;
   startReserveTimer();
+  let checkoutStarted = false;
+  form.addEventListener('input', () => {
+    if (!checkoutStarted) { checkoutStarted = true; track('checkout_started'); }
+  });
   const payButton = form.querySelector('#pay-button');
   const message = form.querySelector('#checkout-message');
   const loading = form.querySelector('#gateway-loading');
@@ -181,7 +204,7 @@ async function initializeCheckout() {
     try {
       const request = await fetch('/api/checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentToken: response.token, customer: data })
+        body: JSON.stringify({ paymentToken: response.token, customer: data, sessionId, tracking: tracking() })
       });
       const result = await request.json();
       if (!request.ok || !result.success) return showError(result.message || 'Your payment could not be processed.');
@@ -231,6 +254,7 @@ function bindUpsells() {
     button.disabled = true;
     button.textContent = 'Processing securely…';
     message.textContent = '';
+    track('offer_accepted', { offerKey: button.dataset.offer });
     try {
       const request = await fetch('/api/upsell', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -270,6 +294,8 @@ function render() {
   initializeVideos();
   bindUpsells();
   initializeCheckout();
+  track('page_view');
+  document.querySelectorAll('a.decline').forEach(link => link.addEventListener('click', () => track('offer_declined', { offerKey: current })));
   document.querySelector('#access-form')?.addEventListener('submit', event => {
     event.preventDefault();
     event.currentTarget.innerHTML = '<h2 style="text-align:center;margin:40px 0">You’re all set. Check your inbox for access instructions.</h2>';
