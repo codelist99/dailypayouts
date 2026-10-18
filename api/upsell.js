@@ -14,7 +14,9 @@ export default async function handler(req, res) {
     const result = await transact({
       type: 'sale', customer_vault_id: session.vaultId, amount: offer.amount,
       orderid: orderId(offerKey), order_description: offer.name,
-      email: session.email || ''
+      email: session.email || '', customer_receipt: 'true',
+      initiated_by: 'customer', stored_credential_indicator: 'used',
+      initial_transaction_id: session.transactionIds?.frontend || ''
     });
     if (!result.approved) return json(res, 402, { success: false, message: result.message, code: result.responseCode });
     session.purchased = [...(session.purchased || []), offerKey];

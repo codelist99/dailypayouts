@@ -15,7 +15,8 @@ export default async function handler(req, res) {
       firstname: customer.firstName, lastname: customer.lastName,
       email: customer.email, phone: customer.phone, address1: customer.address1,
       city: customer.city, state: customer.state, zip: customer.zip, country: customer.country,
-      customer_vault: 'add_customer'
+      customer_vault: 'add_customer', customer_receipt: 'true',
+      initiated_by: 'customer', stored_credential_indicator: 'stored'
     });
     if (!result.approved) return json(res, 402, { success: false, message: result.message, code: result.responseCode });
     if (!result.vaultId) return json(res, 502, { success: false, message: 'Payment approved, but the saved payment profile was not returned. Please contact support.', transactionId: result.transactionId });

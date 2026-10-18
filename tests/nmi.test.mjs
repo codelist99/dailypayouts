@@ -77,6 +77,9 @@ test('one-click upsell charges saved vault at server-side price', async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(approvedFetch.lastSubmission.amount, '57.00');
   assert.equal(approvedFetch.lastSubmission.customer_vault_id, 'vault-123');
+  assert.equal(approvedFetch.lastSubmission.stored_credential_indicator, 'used');
+  assert.equal(approvedFetch.lastSubmission.initiated_by, 'customer');
+  assert.equal(approvedFetch.lastSubmission.initial_transaction_id, 'txn-platinum');
 });
 
 test('upsell rejects requests without a signed checkout session', async () => {

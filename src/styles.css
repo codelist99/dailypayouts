@@ -78,6 +78,7 @@ h2 { font-size: clamp(23px, 3vw, 34px); margin: 48px 0 18px; font-weight: 900; }
 .buy-button { width: 100%; border: 0; border-radius: 6px; padding: 17px; background: #18a65b; color: #fff; font-size: 21px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #0e7040; }
 .buy-button:disabled { opacity: .6; cursor: wait; }
 .secure-note { text-align: center; color: #667085; font-size: 13px; }
+.vault-note { margin: 10px auto 0; max-width: 540px; color: #667085; font-size: 11px; line-height: 1.5; text-align: center; }
 .checkout-message { min-height: 23px; margin: 4px 0 12px; font-size: 14px; font-weight: 700; color: #245ca6; }
 .checkout-message.error { color: #c92828; }
 .checkout-message.success { color: #118647; }
