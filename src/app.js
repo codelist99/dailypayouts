@@ -186,6 +186,11 @@ async function initializeCheckout() {
   form.addEventListener('input', () => {
     if (!checkoutStarted) { checkoutStarted = true; track('checkout_started'); }
   });
+  form.elements.email.addEventListener('blur', () => {
+    if (!form.elements.email.validity.valid || !form.elements.email.value) return;
+    const customer = Object.fromEntries(new FormData(form));
+    track('lead_captured', { customer });
+  });
   const payButton = form.querySelector('#pay-button');
   const message = form.querySelector('#checkout-message');
   const loading = form.querySelector('#gateway-loading');
