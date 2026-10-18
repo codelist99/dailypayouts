@@ -1,4 +1,4 @@
-import { ensureSchema, requireAdmin, sql } from './_lib/analytics.js';
+import { ensureSchema, sql } from './_lib/analytics.js';
 
 const csv = (rows, columns) => {
   const q = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
@@ -6,7 +6,6 @@ const csv = (rows, columns) => {
 };
 
 export default async function handler(req, res) {
-  if (!requireAdmin(req, res)) return;
   try {
     await ensureSchema();
     const db = sql();
