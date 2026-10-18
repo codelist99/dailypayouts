@@ -38,6 +38,13 @@ test('NMI transaction encoder sends form data and parses approval', async () => 
   assert.equal(approvedFetch.lastSubmission.amount, '67.00');
 });
 
+test('transaction-level test mode is included only when explicitly enabled', async () => {
+  process.env.NMI_TEST_MODE = 'enabled';
+  await transact({ type: 'sale', amount: '67.00', payment_token: 'one-time-token' }, approvedFetch());
+  assert.equal(approvedFetch.lastSubmission.test_mode, 'enabled');
+  delete process.env.NMI_TEST_MODE;
+});
+
 test('checkout charges fixed FE price, vaults card and creates signed session', async () => {
   const originalFetch = global.fetch;
   global.fetch = approvedFetch();
