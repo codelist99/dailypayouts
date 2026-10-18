@@ -11,24 +11,20 @@ const CONFIG = {
     multiplier: 'https://cdn.converteai.net/f5f35ad9-c386-4bdb-a002-e5cfcb42d695/69d3ea528a800605e3887418/main.m3u8',
     protector: 'https://cdn.converteai.net/f5f35ad9-c386-4bdb-a002-e5cfcb42d695/692461263dad7de372bd35c4/main.m3u8',
     social: 'https://cdn.converteai.net/f5f35ad9-c386-4bdb-a002-e5cfcb42d695/692460783752bd8e7992b3ec/main.m3u8'
-  },
-  checkoutUrls: {
-    platinum: '', dsplatinum: '', rapid: '', dsrapid: '', multiplier: '',
-    dsmultiplier: '', protector: '', dsprotector: '', social: '', dssocial: ''
   }
 };
 
 const offers = {
-  platinum: { step: 1, title: 'Unlock the Complete Platinum Upgrade', subtitle: 'Get the premium tools and resources available in your account', price: '$197', sale: '$97', decline: 'No thanks, continue without Platinum', down: 'dsplatinum', next: 'rapid', portrait: true },
-  dsplatinum: { step: 1, title: 'A Special One-Time Platinum Offer', subtitle: 'Activate the core Platinum package at a reduced price', price: '$97', sale: '$67', decline: 'No thanks, I will pass on Platinum', next: 'rapid' },
+  platinum: { step: 1, title: 'Upgrade To Daily Payouts Platinum', subtitle: 'Get the complete done-for-you setup and optimization package', price: '$397', sale: '$147', decline: 'No thanks, continue without Platinum', down: 'dsplatinum', next: 'rapid', portrait: true },
+  dsplatinum: { step: 1, title: 'Wait — Take $50 Off Platinum Setup', subtitle: 'Get the same done-for-you Platinum Setup at this one-time reduced price', price: '$147', sale: '$97', decline: 'No Thank You, I Don’t Want This Discount', next: 'rapid' },
   rapid: { step: 2, title: 'Get Faster Payouts', subtitle: 'Add the payout acceleration upgrade to your order', price: '$197', sale: '$97', decline: "No thanks, I don't want faster payouts", down: 'dsrapid', next: 'multiplier' },
-  dsrapid: { step: 2, title: 'Wait — Get the Essential Accelerator', subtitle: 'Choose the streamlined version at today’s reduced price', price: '$97', sale: '$47', decline: 'No thanks, continue without the accelerator', next: 'multiplier' },
-  multiplier: { step: 3, title: 'Multiply Your Results', subtitle: 'Add the advanced scaling toolkit to your account', price: '$197', sale: '$97', decline: 'No thanks, skip the multiplier', down: 'dsmultiplier', next: 'protector' },
-  dsmultiplier: { step: 3, title: 'Add the Multiplier Lite Edition', subtitle: 'Keep the essentials and save today', price: '$97', sale: '$47', decline: 'No thanks, continue without it', next: 'protector' },
-  protector: { step: 4, title: 'Protect Your Progress', subtitle: 'Add account protection and continuity resources', price: '$197', sale: '$97', decline: 'No thanks, skip protection', down: 'dsprotector', next: 'social' },
-  dsprotector: { step: 4, title: 'Essential Protection — Reduced', subtitle: 'Secure the core protection package at a lower price', price: '$97', sale: '$47', decline: 'No thanks, continue without protection', next: 'social' },
-  social: { step: 5, title: 'Add the Social Growth Suite', subtitle: 'Expand your reach with the complete social toolkit', price: '$197', sale: '$97', decline: 'No thanks, skip social growth', down: 'dssocial', next: 'dpptyp25' },
-  dssocial: { step: 5, title: 'Social Growth Starter Offer', subtitle: 'Get the streamlined social toolkit at a special price', price: '$97', sale: '$47', decline: 'No thanks, finish my order', next: 'dpptyp25' }
+  dsrapid: { step: 2, title: 'Hold Up — Don’t Miss This', subtitle: 'Activate Rapid Daily Payouts at this one-time reduced price', price: '$97', sale: '$77', decline: 'No Thank You, I Don’t Want This Discount', next: 'multiplier' },
+  multiplier: { step: 3, title: 'Activate Multiple Income Streams', subtitle: 'Add automated income streams designed to multiply your daily payouts', price: '$97', sale: '$77', decline: 'No thanks, skip the Multiplier', down: 'dsmultiplier', next: 'protector' },
+  dsmultiplier: { step: 3, title: 'Take Your Daily Payouts Further', subtitle: 'Unlock the Multiplier upgrade at this one-time reduced price', price: '$77', sale: '$57', decline: 'No Thank You, I Don’t Want This Discount', next: 'protector' },
+  protector: { step: 4, title: 'Protect Your Payouts Now', subtitle: 'Activate the payout protection upgrade today', price: '$97', sale: '$47', decline: 'No thanks, skip protection', down: 'dsprotector', next: 'social' },
+  dsprotector: { step: 4, title: 'Last Chance to Maximize Your Daily Payouts', subtitle: 'Unlock the protection upgrade at this one-time reduced price', price: '$47', sale: '$37', decline: 'No Thank You, I Don’t Want This Discount', next: 'social' },
+  social: { step: 5, title: 'Unlock Social Media Payouts', subtitle: 'Activate the Social Payments Bot and supported platform payout channels', price: '$97', sale: '$37', decline: 'No thanks, skip Social Payments', down: 'dssocial', next: 'dpptyp25' },
+  dssocial: { step: 5, title: 'You’re One Step Away from Social Media Payouts', subtitle: 'Get the Social Payments Bot at this final one-time price', price: '$37', sale: '$27', decline: 'No Thank You, Take Me To The Members Area', next: 'dpptyp25' }
 };
 
 const query = () => window.location.search || '';
@@ -60,14 +56,16 @@ function footer() {
 }
 
 function watchPage() {
-  return `<main class="page"><section class="shell watch-shell">${video('watch', true)}</section>${footer()}</main>`;
+  return `<main class="page"><section class="shell watch-shell">${video('watch', true)}<a class="cta front-cta" data-link href="${url('checkout')}">Get Instant Access For $67<small>Secure one-time payment</small></a></section>${footer()}</main>`;
 }
 
 function offerPage(key, offer) {
   const declineTarget = offer.down || offer.next;
-  const checkout = CONFIG.checkoutUrls[key];
-  const acceptHref = checkout || url(offer.next);
-  return `<main class="page"><div class="warning">IMPORTANT: Please do not close this window or click the Back button.</div><section class="shell"><div class="step">STEP ${offer.step}</div><h1>${offer.title}</h1>${CONFIG.videos[key] ? video(key, offer.portrait) : ''}<h2>${offer.subtitle}</h2><div class="price">One-time price <span class="old">${offer.price}</span> ${offer.sale}</div><a class="cta" ${checkout ? '' : 'data-link'} href="${acceptHref}">✓ Yes, Add This Upgrade<small>60-day money-back guarantee</small></a><a class="decline" data-link href="${url(declineTarget)}">${offer.decline}</a></section>${footer()}</main>`;
+  return `<main class="page"><div class="warning">IMPORTANT: Please do not close this window or click the Back button.</div><section class="shell"><div class="step">STEP ${offer.step}</div><h1>${offer.title}</h1>${CONFIG.videos[key] ? video(key, offer.portrait) : ''}<h2>${offer.subtitle}</h2><div class="price">One-time price <span class="old">${offer.price}</span> ${offer.sale}</div><button class="cta upsell-cta" type="button" data-offer="${key}" data-next="${offer.next}">✓ Yes, Add This Upgrade<small>Charge my saved payment method ${offer.sale}</small></button><a class="decline" data-link href="${url(declineTarget)}">${offer.decline}</a><div class="payment-message" aria-live="polite"></div></section>${footer()}</main>`;
+}
+
+function checkoutPage() {
+  return `<main class="checkout-page"><div class="checkout-reserve">YOUR ORDER IS RESERVED FOR: <strong id="reserve-timer">10:00</strong></div><header class="checkout-header"><span class="lock">●</span> Secure Checkout</header><section class="checkout-grid"><form id="checkout-form" class="checkout-form"><h2>Customer Information</h2><p class="checkout-help">Enter your billing details to receive your order confirmation.</p><div class="form-grid"><label>First name<input name="firstName" autocomplete="given-name" required></label><label>Last name<input name="lastName" autocomplete="family-name" required></label><label class="wide">Email address<input name="email" type="email" autocomplete="email" required></label><label class="wide">Phone number<input name="phone" type="tel" autocomplete="tel"></label><label class="wide">Billing address<input name="address1" autocomplete="address-line1" required></label><label>City<input name="city" autocomplete="address-level2" required></label><label>State<input name="state" autocomplete="address-level1" required></label><label>ZIP / postal code<input name="zip" autocomplete="postal-code" required></label><label>Country<select name="country"><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option></select></label></div><h2>Payment Information</h2><div id="gateway-loading" class="gateway-loading">Loading secure payment fields…</div><div class="card-fields"><label class="wide">Card number<div id="ccnumber" class="hosted-field"></div></label><label>Expiration<div id="ccexp" class="hosted-field"></div></label><label>Security code<div id="cvv" class="hosted-field"></div></label></div><div id="checkout-message" class="checkout-message" aria-live="polite"></div><button id="pay-button" class="buy-button" type="button" disabled>BUY NOW — $67</button><p class="secure-note">🔒 100% Secure &amp; Safe Payment</p></form><aside class="order-summary"><h2>Daily Payouts - FE</h2><div class="summary-row"><span>Today's price</span><strong>$67.00</strong></div><div class="summary-row"><span>Subtotal</span><strong>$67.00</strong></div><p>+ any applicable taxes</p><div class="summary-total"><span>Today's payment</span><strong>$67.00</strong></div><p>This is a single payment made in U.S. Dollars.</p><p class="guarantee"><strong>60-Day Guarantee</strong><br>Your purchase is covered by the product refund policy.</p></aside></section><footer class="checkout-footer">By clicking “BUY NOW,” you authorize a one-time charge of $67.00 and agree to the <a data-link href="/terms">Terms of Sale</a> and <a data-link href="/privacy">Privacy Policy</a>.<br>© ${new Date().getFullYear()} ${CONFIG.brand}. All rights reserved.</footer></main>`;
 }
 
 function initializeVideos() {
@@ -148,10 +146,121 @@ function legalPage(kind) {
   return `<main class="page"><article class="legal"><h1>${privacy ? 'Privacy Policy' : 'Terms & Conditions'}</h1><p>Last updated: October 16, 2026</p><p>${privacy ? 'We collect information you voluntarily submit, along with limited technical data needed to operate and improve this website. We use it to deliver requested services, provide support, prevent abuse, and comply with legal obligations.' : 'By using this website, you agree to use it lawfully and understand that results vary. Product access, refund eligibility, billing, and support are governed by the terms shown at checkout.'}</p><p>Questions may be sent to ${CONFIG.supportEmail}.</p><p><a data-link href="/watch">Return to the offer</a></p></article>${footer()}</main>`;
 }
 
+function startReserveTimer() {
+  const output = document.querySelector('#reserve-timer');
+  if (!output) return;
+  let seconds = 600;
+  const tick = () => {
+    output.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+    if (seconds > 0) seconds -= 1;
+  };
+  tick();
+  const timer = setInterval(tick, 1000);
+  addEventListener('popstate', () => clearInterval(timer), { once: true });
+}
+
+async function initializeCheckout() {
+  const form = document.querySelector('#checkout-form');
+  if (!form) return;
+  startReserveTimer();
+  const payButton = form.querySelector('#pay-button');
+  const message = form.querySelector('#checkout-message');
+  const loading = form.querySelector('#gateway-loading');
+  const showError = text => {
+    message.textContent = text;
+    message.className = 'checkout-message error';
+    payButton.disabled = false;
+    payButton.textContent = 'BUY NOW — $67';
+  };
+  window.handleNmiToken = async response => {
+    payButton.disabled = true;
+    payButton.textContent = 'PROCESSING…';
+    message.textContent = 'Securely processing your order…';
+    message.className = 'checkout-message';
+    const data = Object.fromEntries(new FormData(form));
+    try {
+      const request = await fetch('/api/checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentToken: response.token, customer: data })
+      });
+      const result = await request.json();
+      if (!request.ok || !result.success) return showError(result.message || 'Your payment could not be processed.');
+      message.textContent = 'Approved! Loading your first upgrade…';
+      message.className = 'checkout-message success';
+      location.assign(`${result.next}${query()}`);
+    } catch {
+      showError('Unable to reach the payment service. Please try again.');
+    }
+  };
+  try {
+    const configRequest = await fetch('/api/config', { cache: 'no-store' });
+    const config = await configRequest.json();
+    if (!configRequest.ok || !config.tokenizationKey) throw new Error(config.message || 'Payment gateway is unavailable.');
+    const script = document.createElement('script');
+    script.src = 'https://secure.nmi.com/token/Collect.js';
+    script.dataset.tokenizationKey = config.tokenizationKey;
+    script.dataset.variant = 'inline';
+    script.onload = () => {
+      window.CollectJS.configure({
+        variant: 'inline', paymentSelector: '#pay-button',
+        fields: {
+          ccnumber: { selector: '#ccnumber', title: 'Card Number', placeholder: 'Card number' },
+          ccexp: { selector: '#ccexp', title: 'Expiration Date', placeholder: 'MM / YY' },
+          cvv: { selector: '#cvv', title: 'CVV', placeholder: 'CVV' }
+        },
+        styleSniffer: true,
+        customCss: { color: '#111827', 'font-size': '16px', 'font-family': 'Inter, Arial, sans-serif' },
+        focusCss: { color: '#111827' }, invalidCss: { color: '#dc2626' },
+        callback: window.handleNmiToken
+      });
+      loading.hidden = true;
+      payButton.disabled = false;
+    };
+    script.onerror = () => showError('The secure payment fields failed to load. Please refresh and try again.');
+    document.head.appendChild(script);
+  } catch (error) {
+    showError(error.message || 'The payment gateway is unavailable.');
+  }
+}
+
+function bindUpsells() {
+  document.querySelectorAll('.upsell-cta').forEach(button => button.addEventListener('click', async () => {
+    if (button.disabled) return;
+    const message = button.closest('.shell').querySelector('.payment-message');
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.textContent = 'Processing securely…';
+    message.textContent = '';
+    try {
+      const request = await fetch('/api/upsell', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offer: button.dataset.offer })
+      });
+      const result = await request.json();
+      if (!request.ok || !result.success) {
+        if (result.checkoutRequired) {
+          message.innerHTML = `Your checkout session expired. <a data-link href="${url('checkout')}">Return to secure checkout</a>.`;
+          bindNavigation();
+        } else message.textContent = result.message || 'The charge could not be processed.';
+        button.disabled = false;
+        button.innerHTML = original;
+        return;
+      }
+      button.textContent = 'Approved! Loading next step…';
+      location.assign(url(button.dataset.next));
+    } catch {
+      message.textContent = 'Unable to reach the payment service. Please try again.';
+      button.disabled = false;
+      button.innerHTML = original;
+    }
+  }));
+}
+
 function render() {
   const current = route();
   let html;
   if (current === 'watch' || current === '') html = watchPage();
+  else if (current === 'checkout') html = checkoutPage();
   else if (offers[current]) html = offerPage(current, offers[current]);
   else if (current === 'dpptyp25') html = accessPage();
   else if (current === 'privacy' || current === 'terms') html = legalPage(current);
@@ -159,6 +268,8 @@ function render() {
   document.querySelector('#app').innerHTML = html;
   bindNavigation();
   initializeVideos();
+  bindUpsells();
+  initializeCheckout();
   document.querySelector('#access-form')?.addEventListener('submit', event => {
     event.preventDefault();
     event.currentTarget.innerHTML = '<h2 style="text-align:center;margin:40px 0">You’re all set. Check your inbox for access instructions.</h2>';
