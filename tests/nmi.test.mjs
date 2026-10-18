@@ -42,7 +42,6 @@ test('transaction-level test mode is included only when explicitly enabled', asy
   process.env.NMI_TEST_MODE = 'enabled';
   await transact({ type: 'sale', amount: '67.00', payment_token: 'one-time-token' }, approvedFetch());
   assert.equal(approvedFetch.lastSubmission.test_mode, 'enabled');
-  assert.equal(approvedFetch.lastSubmission.dup_seconds, '0');
   delete process.env.NMI_TEST_MODE;
 });
 

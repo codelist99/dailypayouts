@@ -31,7 +31,7 @@ export function requirePost(req, res) {
 export async function transact(fields, fetcher = fetch) {
   const securityKey = process.env.NMI_PRIVATE_KEY;
   if (!securityKey) throw new Error('NMI_PRIVATE_KEY is not configured.');
-  const testMode = process.env.NMI_TEST_MODE === 'enabled' ? { test_mode: 'enabled', dup_seconds: '0' } : {};
+  const testMode = process.env.NMI_TEST_MODE === 'enabled' ? { test_mode: 'enabled' } : {};
   const body = new URLSearchParams({ security_key: securityKey, ...testMode, ...fields });
   const response = await fetcher(NMI_ENDPOINT, {
     method: 'POST',
