@@ -167,7 +167,7 @@ function initializeVideos() {
 }
 
 function accessPage() {
-  return `<main class="page access-page"><section class="access"><h1>Thank You for Upgrading!</h1><h2>Sign up below to access your products</h2><form class="form-box" id="access-form"><label for="name">First name</label><input id="name" name="name" autocomplete="given-name" required><label for="email">Email address *</label><input id="email" name="email" type="email" autocomplete="email" required><button type="submit">Get Access Here</button></form></section><footer class="access-footer"><p>${CONFIG.supportEmail}</p><p>For order assistance, contact support using the email above.</p><p><a data-link href="/privacy">Privacy</a> | <a data-link href="/terms">Terms &amp; Conditions</a></p><p>${CONFIG.brand} © ${new Date().getFullYear()} | All rights reserved.</p></footer></main>`;
+  return `<main class="page access-page"><section class="access"><h1>Thank You for Your Order!</h1><h2>Please call now to get your program started immediately.</h2><div class="call-box"><p>Your order is complete. Call our activation team now so we can help you get started.</p><a class="call-button" href="tel:+18582571162">Call (858) 257-1162</a><small>Tap the number above to call now.</small></div></section><footer class="access-footer"><p><strong>Program Activation: <a href="tel:+18582571162">(858) 257-1162</a></strong></p><p>Please call to get your program started immediately.</p><p><a data-link href="/privacy">Privacy</a> | <a data-link href="/terms">Terms &amp; Conditions</a></p><p>${CONFIG.brand} © ${new Date().getFullYear()} | All rights reserved.</p></footer></main>`;
 }
 
 function legalPage(kind) {
@@ -312,10 +312,6 @@ function render() {
   track('page_view');
   document.querySelector('.front-cta')?.addEventListener('click', () => track('cta_click', { offerKey: 'frontend' }));
   document.querySelectorAll('a.decline').forEach(link => link.addEventListener('click', () => track('offer_declined', { offerKey: current })));
-  document.querySelector('#access-form')?.addEventListener('submit', event => {
-    event.preventDefault();
-    event.currentTarget.innerHTML = '<h2 style="text-align:center;margin:40px 0">You’re all set. Check your inbox for access instructions.</h2>';
-  });
 }
 
 function bindNavigation() {

@@ -18,6 +18,7 @@ export default async function handler(req, res) {
       type: 'sale', customer_vault_id: session.vaultId, amount: offer.amount,
       orderid: orderId(offerKey), order_description: offer.name,
       email: session.email || '', customer_receipt: 'true',
+      dup_seconds: '0',
       initiated_by: 'customer', stored_credential_indicator: 'used',
       initial_transaction_id: session.transactionIds?.frontend || ''
     }); } catch (error) {

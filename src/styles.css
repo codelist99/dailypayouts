@@ -54,6 +54,12 @@ h2 { font-size: clamp(23px, 3vw, 34px); margin: 48px 0 18px; font-weight: 900; }
 .form-box label { display: block; margin: 15px 0 10px; color: #2d3448; }
 .form-box input { width: 100%; height: 41px; padding: 8px 12px; border: 1px solid #aaa; border-radius: 5px; }
 .form-box button { display: block; margin: 34px auto 0; border: 3px solid #111; border-radius: 40px; background: #ff1233; color: #fff; padding: 15px 52px; font-size: 20px; font-weight: 900; cursor: pointer; }
+.call-box { width: min(750px, 100%); margin: 35px auto 70px; border: 4px solid #111; padding: clamp(35px, 6vw, 70px) 25px; text-align: center; background: #fff; box-shadow: 12px 12px 0 #f03d42; }
+.call-box p { max-width: 600px; margin: 0 auto 30px; font-size: clamp(18px, 3vw, 25px); line-height: 1.45; font-weight: 700; }
+.call-button { display: block; width: min(520px, 100%); margin: auto; border-radius: 50px; background: #10b840; color: #fff; padding: 20px 25px; font-size: clamp(25px, 5vw, 39px); font-weight: 900; text-decoration: none; box-shadow: 0 7px 0 #087b2a; }
+.call-button:hover { transform: translateY(2px); box-shadow: 0 5px 0 #087b2a; }
+.call-box small { display: block; margin-top: 23px; color: #555; font-size: 15px; }
+.access-footer a { color: #fff; }
 .access-footer { background: #071e2a; padding: 45px 28px; color: #e8edf0; text-align: center; line-height: 1.5; }
 .legal { width: min(800px, calc(100% - 32px)); margin: 50px auto; line-height: 1.75; }
 .legal h1 { text-align: center; }
