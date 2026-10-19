@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 
-export const OFFERS = Object.freeze({
+export const LIVE_OFFERS = Object.freeze({
   frontend: { name: 'Daily Payouts - FE', amount: '67.00' },
   platinum: { name: 'Daily Payouts Platinum Setup', amount: '147.00' },
   dsplatinum: { name: 'Daily Payouts Platinum Setup - Special Offer', amount: '97.00' },
@@ -13,6 +13,11 @@ export const OFFERS = Object.freeze({
   social: { name: 'Social Payments Bot', amount: '37.00' },
   dssocial: { name: 'Social Payments Bot - Special Offer', amount: '27.00' }
 });
+
+const oneDollarTesting = process.env.ONE_DOLLAR_TEST_MODE === 'true';
+export const OFFERS = Object.freeze(Object.fromEntries(
+  Object.entries(LIVE_OFFERS).map(([key, offer]) => [key, { ...offer, amount: oneDollarTesting ? '1.00' : offer.amount }])
+));
 
 const NMI_ENDPOINT = 'https://secure.nmi.com/api/transact.php';
 
