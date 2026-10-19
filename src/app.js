@@ -45,7 +45,7 @@ const tracking = () => {
   };
 };
 function track(eventType, extra = {}) {
-  const payload = { sessionId, eventType, path: location.pathname, offerKey: route(), tracking: tracking(), ...extra };
+  const payload = { sessionId, eventType, path: location.pathname, offerKey: route(), tracking: tracking(), metadata: { viewport: `${innerWidth}x${innerHeight}`, device: innerWidth < 768 ? 'mobile' : innerWidth < 1100 ? 'tablet' : 'desktop' }, ...extra };
   fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
 }
 
@@ -104,6 +104,7 @@ function initializeVideos() {
     const muteButton = wrapper.querySelector('.mute-toggle');
     let furthestPoint = 0;
     let internalSeek = false;
+    const milestones = new Set();
 
     const updateButtons = () => {
       playButton.textContent = player.paused ? '▶' : '❚❚';
@@ -144,6 +145,11 @@ function initializeVideos() {
     player.addEventListener('volumechange', updateButtons);
     player.addEventListener('timeupdate', () => {
       if (!player.seeking && player.currentTime > furthestPoint) furthestPoint = player.currentTime;
+      if (player.duration) [25, 50, 75, 100].forEach(percent => {
+        if (!milestones.has(percent) && player.currentTime / player.duration * 100 >= percent) {
+          milestones.add(percent); track('video_progress', { metadata: { percent, device: innerWidth < 768 ? 'mobile' : innerWidth < 1100 ? 'tablet' : 'desktop' } });
+        }
+      });
     });
     player.addEventListener('seeking', () => {
       if (internalSeek || player.currentTime <= furthestPoint + 1.25) return;
@@ -300,6 +306,7 @@ function render() {
   bindUpsells();
   initializeCheckout();
   track('page_view');
+  document.querySelector('.front-cta')?.addEventListener('click', () => track('cta_click', { offerKey: 'frontend' }));
   document.querySelectorAll('a.decline').forEach(link => link.addEventListener('click', () => track('offer_declined', { offerKey: current })));
   document.querySelector('#access-form')?.addEventListener('submit', event => {
     event.preventDefault();

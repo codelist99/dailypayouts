@@ -15,6 +15,77 @@ export default async function handler(req, res) {
     const offset = (page - 1) * limit;
     const search = `%${String(req.query.search || '').slice(0, 100)}%`;
 
+    if (action === 'logistics') {
+      const parsedStart = new Date(String(req.query.start || ''));
+      const parsedEnd = new Date(String(req.query.end || ''));
+      const end = Number.isNaN(parsedEnd.getTime()) ? new Date() : parsedEnd;
+      const start = Number.isNaN(parsedStart.getTime()) ? new Date(end.getTime() - 86400000) : parsedStart;
+      const startIso = start.toISOString(), endIso = end.toISOString();
+      const [events, commerce, trend, payments, offers, attribution, routes, devices] = await Promise.all([
+        db`SELECT
+          COUNT(*) FILTER(WHERE event_type='page_view')::int views,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='page_view')::int visitors,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='video_unmuted')::int video_engaged,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='cta_click')::int cta_clicks,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='page_view' AND path='/checkout')::int checkout_visitors,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='checkout_started')::int checkout_started,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='lead_captured')::int captured,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='video_progress' AND metadata->>'percent'='25')::int video_25,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='video_progress' AND metadata->>'percent'='50')::int video_50,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='video_progress' AND metadata->>'percent'='75')::int video_75,
+          COUNT(DISTINCT session_id) FILTER(WHERE event_type='video_progress' AND metadata->>'percent'='100')::int video_100
+          FROM dp_events WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz`,
+        db`SELECT COUNT(*)::int attempts, COUNT(*) FILTER(WHERE status='paid')::int approvals,
+          COUNT(*) FILTER(WHERE status='declined')::int declines, COUNT(*) FILTER(WHERE status='error')::int errors,
+          COUNT(DISTINCT lead_id) FILTER(WHERE status='paid')::int buyers,
+          COUNT(DISTINCT lead_id)::int payment_people,
+          COALESCE(SUM(amount) FILTER(WHERE status='paid'),0)::numeric revenue,
+          COALESCE(SUM(amount) FILTER(WHERE status='refunded'),0)::numeric refunds,
+          COUNT(DISTINCT lead_id) FILTER(WHERE status='declined')::int declined_people,
+          COUNT(*) FILTER(WHERE status='declined')::int declined_attempts
+          FROM dp_orders WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz`,
+        db`SELECT date_trunc('hour', bucket) bucket,
+          SUM(views)::int views, SUM(leads)::int leads, SUM(buyers)::int buyers, SUM(revenue)::numeric revenue
+          FROM (
+            SELECT created_at bucket, 1 views, 0 leads, 0 buyers, 0 revenue FROM dp_events WHERE event_type='page_view' AND created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+            UNION ALL SELECT created_at, 0, 1, 0, 0 FROM dp_leads WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+            UNION ALL SELECT created_at, 0, 0, 1, amount FROM dp_orders WHERE status='paid' AND created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          ) x GROUP BY 1 ORDER BY 1`,
+        db`SELECT COALESCE(response_code,'—') response_code, COALESCE(NULLIF(gateway_response,''),'No response') response,
+          status, COUNT(*)::int attempts, COUNT(DISTINCT lead_id)::int people, COALESCE(SUM(amount),0)::numeric amount
+          FROM dp_orders WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          GROUP BY 1,2,3 ORDER BY attempts DESC`,
+        db`SELECT offer_key, product_name, COUNT(*)::int attempts,
+          COUNT(*) FILTER(WHERE status='paid')::int approvals, COUNT(*) FILTER(WHERE status='declined')::int declines,
+          COUNT(DISTINCT lead_id)::int people, COALESCE(SUM(amount) FILTER(WHERE status='paid'),0)::numeric revenue,
+          COALESCE(AVG(amount),0)::numeric price
+          FROM dp_orders WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          GROUP BY offer_key,product_name ORDER BY MIN(created_at)`,
+        db`SELECT COALESCE(NULLIF(source,''),'direct') source, COALESCE(NULLIF(campaign,''),'—') campaign,
+          COUNT(*)::int leads, COUNT(*) FILTER(WHERE status='buyer')::int buyers
+          FROM dp_leads WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          GROUP BY 1,2 ORDER BY leads DESC`,
+        db`SELECT path, COUNT(*)::int views, COUNT(DISTINCT session_id)::int visitors
+          FROM dp_events WHERE event_type='page_view' AND created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          GROUP BY path ORDER BY views DESC`,
+        db`SELECT COALESCE(metadata->>'device','unknown') device, COUNT(DISTINCT session_id)::int visitors
+          FROM dp_events WHERE event_type='page_view' AND created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz
+          GROUP BY 1 ORDER BY visitors DESC`
+      ]);
+      const e = events[0], c = commerce[0];
+      const num = value => Number(value || 0);
+      const summary = { ...e, ...c, revenue: num(c.revenue), refunds: num(c.refunds) };
+      summary.net_revenue = summary.revenue - summary.refunds;
+      summary.leads = (await db`SELECT COUNT(*)::int count FROM dp_leads WHERE created_at>=${startIso}::timestamptz AND created_at<${endIso}::timestamptz`)[0].count;
+      summary.conversion = summary.visitors ? +(summary.buyers / summary.visitors * 100).toFixed(2) : 0;
+      summary.lead_conversion = summary.leads ? +(summary.buyers / summary.leads * 100).toFixed(2) : 0;
+      summary.approval_rate = summary.attempts ? +(summary.approvals / summary.attempts * 100).toFixed(1) : 0;
+      summary.rpv = summary.visitors ? +(summary.revenue / summary.visitors).toFixed(2) : 0;
+      summary.rpl = summary.leads ? +(summary.revenue / summary.leads).toFixed(2) : 0;
+      summary.aov = summary.buyers ? +(summary.revenue / summary.buyers).toFixed(2) : 0;
+      return res.status(200).json({ range: { start: startIso, end: endIso }, summary, trend, payments, offers, attribution, routes, devices });
+    }
+
     if (action === 'dashboard') {
       const [summary] = await db`SELECT
         (SELECT COUNT(*)::int FROM dp_leads) AS leads,
