@@ -37,7 +37,10 @@ export async function transact(fields, fetcher = fetch) {
   const securityKey = process.env.NMI_PRIVATE_KEY;
   if (!securityKey) throw new Error('NMI_PRIVATE_KEY is not configured.');
   const testMode = process.env.NMI_TEST_MODE === 'enabled' ? { test_mode: 'enabled' } : {};
-  const body = new URLSearchParams({ security_key: securityKey, ...testMode, ...fields });
+  // The funnel intentionally runs several separate charges in sequence. Disable
+  // NMI's amount/card duplicate window globally so later offers are never
+  // rejected merely because they use the same saved card and price.
+  const body = new URLSearchParams({ security_key: securityKey, dup_seconds: '0', ...testMode, ...fields });
   const response = await fetcher(NMI_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

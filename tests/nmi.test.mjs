@@ -37,6 +37,7 @@ test('NMI transaction encoder sends form data and parses approval', async () => 
   assert.equal(result.approved, true);
   assert.equal(approvedFetch.lastSubmission.security_key, 'test-private-key');
   assert.equal(approvedFetch.lastSubmission.amount, '67.00');
+  assert.equal(approvedFetch.lastSubmission.dup_seconds, '0');
 });
 
 test('transaction-level test mode is included only when explicitly enabled', async () => {
